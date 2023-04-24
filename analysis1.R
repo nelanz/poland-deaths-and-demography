@@ -70,3 +70,5 @@ ALL_DATA_AGE_EUROSTAT_MALE <- ALL_DATA_MALE %>%
                                               "Y_GE85", wiek_eurostat)))) %>%
   select(-year)
   
+
+

@@ -44,7 +44,7 @@ ggplot(all_PL_statistics, aes(YEAR, sum)) +
   geom_line(color="red") +
   labs(x="Year",
        y="Sum",
-       title = "Sum of all-cause deaths in Poland",
+       title = "Total number of all-cause deaths in Poland",
        subtitle = "Years 2000 - 2021") +
   theme_ipsum()
 
@@ -80,7 +80,7 @@ bind_rows(sum_female, sum_male) %>%
   geom_line() +
   labs(x="Year",
        y="Sum",
-       title = "Sum of all-cause deaths in Poland",
+       title = "Total number of all-cause deaths in Poland",
        subtitle = "Years 2000 - 2021, by gender",
        color=NULL) +
   theme_ipsum() +
@@ -88,3 +88,18 @@ bind_rows(sum_female, sum_male) %>%
 # data %>%
 #   gather(var, val, 2:ncol(data)) %>%
 #   spread(Series.Description, val)
+
+
+#### calcuklations on poviats
+all_poviats_stats <-
+  ALL_DATA_AGE_EUROSTAT %>%
+  mutate(sum = select(., T01:T53) %>% apply(1, sum, na.rm=TRUE)) %>%
+  select(-starts_with('T'))
+
+all_poviats_stats_females <- ALL_DATA_AGE_EUROSTAT_FEMALE %>%
+  mutate(sum = select(., T01:T53) %>% apply(1, sum, na.rm=TRUE)) %>%
+  select(-starts_with('T'))
+
+all_poviats_stats_males <- ALL_DATA_AGE_EUROSTAT_MALE %>%
+  mutate(sum = select(., T01:T53) %>% apply(1, sum, na.rm=TRUE)) %>%
+  select(-starts_with('T'))
