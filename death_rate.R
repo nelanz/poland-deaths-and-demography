@@ -219,6 +219,36 @@ get_age_groups_summary <- function(joined_data) {
   return(age_groups_comparison_summary)
 }
 
+get_age_groups_summary2 <- function(joined_data) {
+  age_groups_comparison_summary <- joined_data %>%
+    mutate(is_pre_2020 = ifelse(YEAR < 2020, '2000-2019', ifelse(YEAR == 2020, '2020', '2021'))) %>%
+    filter(is_pre_2020 != '2021') %>%
+    group_by(sex, age_for_plotting, is_pre_2020) %>%
+    summarize(death_rate= sum(age_group_sum)/sum(values) * factor) 
+  
+  return(age_groups_comparison_summary)
+}
+
+get_age_groups_summary3 <- function(joined_data) {
+  age_groups_comparison_summary <- joined_data %>%
+    mutate(is_pre_2020 = ifelse(YEAR < 2020, '2000-2019', ifelse(YEAR == 2020, '2020', '2021'))) %>%
+    filter(is_pre_2020 != '2020') %>%
+    group_by(sex, age_for_plotting, is_pre_2020) %>%
+    summarize(death_rate= sum(age_group_sum)/sum(values) * factor) 
+  
+  return(age_groups_comparison_summary)
+}
+
+get_age_groups_summary4 <- function(joined_data) {
+  age_groups_comparison_summary <- joined_data %>%
+    mutate(is_pre_2020 = ifelse(YEAR < 2020, '2000-2019', ifelse(YEAR == 2020, '2020', '2021'))) %>%
+    filter(is_pre_2020 != '2000-2019') %>%
+    group_by(sex, age_for_plotting, is_pre_2020) %>%
+    summarize(death_rate= sum(age_group_sum)/sum(values) * factor) 
+  
+  return(age_groups_comparison_summary)
+}
+
 ##################### 
 ####OLD PLOT
 # get_death_rate_plot <- function(joined_data, title_value) {
@@ -262,9 +292,9 @@ population_deaths_joined_MF_summary <- get_age_groups_summary(population_deaths_
 population_deaths_joined_MF_summary
 population_deaths_joined_MF_summary_1 <- tidyr::unite(population_deaths_joined_MF_summary,"sex_year",sex,is_pre_2020,remove = F)
 
-age_for_plotting_factor <- c('0-4', '5-9', '10-14', '15-19', '20-24', '25-29',
-                             '30-34', '35-39', '40-44', '45-49', '50-54', '55-59',
-                             '60-64', '65-69', '70-74', '75-79', '80-84', '85+')
+# age_for_plotting_factor <- c('0-4', '5-9', '10-14', '15-19', '20-24', '25-29',
+#                              '30-34', '35-39', '40-44', '45-49', '50-54', '55-59',
+#                              '60-64', '65-69', '70-74', '75-79', '80-84', '85+')
 
 population_deaths_joined_MF_summary_2 <- population_deaths_joined_MF_summary_1 %>%
   mutate(sex_year = ifelse(sex_year == 'F_2000-2019', 'Females: 2000-2019',
@@ -272,6 +302,46 @@ population_deaths_joined_MF_summary_2 <- population_deaths_joined_MF_summary_1 %
                                   ifelse(sex_year == 'M_2000-2019', 'Males: 2000-2019',
                                          'Males: 2020-2021')))) %>%
   print(n=72)
+
+# function for 2000-2019 vs 2020
+get_summary_for_plotting2 <- function(summary_data) {
+  summary_transformed <- tidyr::unite(summary_data,"sex_year",sex,is_pre_2020,remove = F)
+
+  
+  summary_transfomred <- summary_transformed %>%
+    mutate(sex_year = ifelse(sex_year == 'F_2000-2019', 'Females: 2000-2019',
+                             ifelse(sex_year == 'F_2020', 'Females: 2020',
+                                    ifelse(sex_year == 'M_2000-2019', 'Males: 2000-2019',
+                                           'Males: 2020')))) 
+  return(summary_transfomred)
+}
+
+# function for 2000-2019 vs 2021
+get_summary_for_plotting3 <- function(summary_data) {
+  summary_transformed <- tidyr::unite(summary_data,"sex_year",sex,is_pre_2020,remove = F)
+  
+  
+  summary_transfomred <- summary_transformed %>%
+    mutate(sex_year = ifelse(sex_year == 'F_2000-2019', 'Females: 2000-2019',
+                             ifelse(sex_year == 'F_2021', 'Females: 2021',
+                                    ifelse(sex_year == 'M_2000-2019', 'Males: 2000-2019',
+                                           'Males: 2021')))) 
+  return(summary_transfomred)
+}
+
+# function for 2020 vs 2021
+get_summary_for_plotting4 <- function(summary_data) {
+  summary_transformed <- tidyr::unite(summary_data,"sex_year",sex,is_pre_2020,remove = F)
+  
+  
+  summary_transfomred <- summary_transformed %>%
+    mutate(sex_year = ifelse(sex_year == 'F_2020', 'Females: 2020',
+                             ifelse(sex_year == 'F_2021', 'Females: 2021',
+                                    ifelse(sex_year == 'M_2020', 'Males: 2020',
+                                           'Males: 2021')))) 
+  return(summary_transfomred)
+}
+
 
 ### piramida wieku dla grup wiekowuch
 ### lata 2000-2019 vs 2021-2022
@@ -283,17 +353,62 @@ ggplot(population_deaths_joined_MF_summary_2, aes(x=factor(age_for_plotting, lev
        x="Age group",
        fill="",
        title = "Crude mortality rate per 100 000 in Poland, by age group and gender",
-       subtitle = "Comparison of years 2000-2019 and 2020-2021")+
+       subtitle = "Comparison of years 2000-2019 and 2020-2021") +
   scale_fill_brewer(palette="Paired", breaks = c('Males: 2000-2019', 'Males: 2020-2021', 'Females: 2000-2019', 'Females: 2020-2021'))+
   theme_ipsum() +
   theme(legend.position = 'top')
 
 
-population_deaths_joined_MF_summary_1 %>%
-  select(age_for_plotting) %>%
-  filter(sex== 'F') %>%
-  distinct() %>%
-  print(n=36)
+plot_age_pyramid <- function(summary_data, breaks_list, subtitle) {
+  ggplot(summary_data, aes(x=factor(age_for_plotting, levels = age_for_plotting_factor), y=ifelse(sex=="M", -death_rate, death_rate),
+                                                    fill=sex_year)) + 
+    geom_bar(stat="identity", alpha=0.9, position = position_dodge2(reverse=T)) + 
+    coord_flip() + 
+    labs(y="Crude mortality rate per 100 000",
+         x="Age group",
+         fill="",
+         title = "Crude mortality rate per 100 000 in Poland, by age group and gender",
+         subtitle = subtitle)+
+    scale_fill_brewer(palette="Paired", breaks = breaks_list)+
+    theme_ipsum() +
+    theme(legend.position = 'top')
+}
+
+###### lata 2000-2019 vs 2020
+population_deaths_joined_MF_summary_comparison_2 <- get_age_groups_summary2(population_deaths_joined_MF)
+summary_2000_2019_vs_2020 <- get_summary_for_plotting2(population_deaths_joined_MF_summary_comparison_2)
+plot_age_pyramid(summary_2000_2019_vs_2020,
+                 c('Males: 2000-2019', 'Males: 2020', 'Females: 2000-2019', 'Females: 2020'),
+                 "Comparison of years 2000-2019 and 2020")
+
+
+##### lata 2000-2019 vs 2021
+population_deaths_joined_MF_summary_comparison_3 <- get_age_groups_summary3(population_deaths_joined_MF)
+summary_2000_2019_vs_2021 <- get_summary_for_plotting3(population_deaths_joined_MF_summary_comparison_3)
+plot_age_pyramid(summary_2000_2019_vs_2021,
+                 c('Males: 2000-2019', 'Males: 2021', 'Females: 2000-2019', 'Females: 2021'),
+                 "Comparison of years 2000-2019 and 2021")
+
+#### lata 2020 vs 2021
+population_deaths_joined_MF_summary_comparison_4 <- get_age_groups_summary4(population_deaths_joined_MF)
+summary_2020_vs_2021 <- get_summary_for_plotting4(population_deaths_joined_MF_summary_comparison_4)
+plot_age_pyramid(summary_2020_vs_2021,
+                 c('Males: 2020', 'Males: 2021', 'Females: 2020', 'Females: 2021'),
+                 "Comparison of years 2020 and 2021")
 
 
 
+####################
+# POST PRODUCTION
+
+population_deaths_joined_MF_summary_2 %>%
+  filter(age_for_plotting == '85+')
+
+summary_2000_2019_vs_2020 %>%
+  filter(age_for_plotting == '85+')
+
+summary_2000_2019_vs_2021 %>%
+  filter(age_for_plotting == '80-84')
+
+summary_2020_vs_2021 %>%
+  filter(age_for_plotting == '80-84')
