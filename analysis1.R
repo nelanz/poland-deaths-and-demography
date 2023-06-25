@@ -60,6 +60,7 @@ ALL_DATA_AGE_EUROSTAT_FEMALE <- ALL_DATA_FEMALE %>%
   
   select(-year)
 
+
 ALL_DATA_AGE_EUROSTAT_MALE <- ALL_DATA_MALE %>%
   dplyr::mutate(across(4:57, as.numeric)) %>%
   mutate('YEAR' = year) %>%
@@ -71,4 +72,6 @@ ALL_DATA_AGE_EUROSTAT_MALE <- ALL_DATA_MALE %>%
   select(-year)
   
 
-
+ALL_DATA_AGE_EUROSTAT %>%
+  group_by(wiek) %>%
+  count()
